@@ -61,12 +61,12 @@ private:
         return filter_validation;
     }
 
-    optional<path> get_canonical_path(path &entry) {
+    optional<path> get_canonical_path(path &fpath) {
         try {
-            path path = filesystem::canonical(entry);
-            return path;
+            path path_canonical = filesystem::canonical(fpath);
+            return path_canonical;
         } catch (filesystem_error &e) {
-            printf("File Inaccessible: [%s]\n\n", entry.string().c_str());
+            printf("Path Inaccessible: [%s]\n\n", fpath.string().c_str());
             return nullopt;
         }
     }
@@ -76,7 +76,7 @@ private:
             directory_iterator entries = directory_iterator(root);
             return entries;
         } catch (filesystem_error &e) {
-            printf("Directory Inaccessible: [%s]\n\n", root.string().c_str());
+            printf("Path Inaccessible: [%s]\n\n", root.string().c_str());
             return nullopt;
         }
     }
@@ -92,16 +92,13 @@ private:
         return get_abs_path();
     }
 
-    bool is_same_directory(path &file, path &dir) {
+    bool is_same_directory(path &fpath, path &dir) {
         if (exists(dir)) {
-            path dir_canon = canonical(dir);
-            path file_canon = canonical(file);
-
-            while (file_canon != file_canon.root_path()) {
-                if (file_canon == dir_canon) {
+            while (fpath != fpath.root_path()) {
+                if (fpath == dir) {
                     return true;
                 }
-                file_canon = file_canon.parent_path();
+                fpath = fpath.parent_path();
             }
         }
         return false;
@@ -143,16 +140,9 @@ private:
             return false;
         }
 
-        if (!fpath.is_absolute()) {
-            optional<path> fpath_op = this->get_canonical_path(fpath);
-            if (!fpath_op.has_value()) {
-                return false;
-            }
-            fpath = fpath_op.value();
-        }
-
+        path fpath_c = fpath;
         for (path dir : this->exclude_dirs) {
-            bool is_same_directory = this->is_same_directory(fpath, dir);
+            bool is_same_directory = this->is_same_directory(fpath_c, dir);
             if (is_same_directory) {
                 return true;
             }
@@ -196,15 +186,18 @@ private:
     }
 
     void search(path &root, vector<path> &roots, vector<path> &files) {
-        if (this->is_excluded_directory(root)) {
-            return;
-        }
+        optional<path> root_op = this->get_canonical_path(root);
+        if (root_op.has_value()) {
+            path root = root_op.value();
+            if (this->is_excluded_directory(root)) {
+                return;
+            }
 
-        optional<directory_iterator> op_entries = directory_iterator(root);
-
-        if (op_entries.has_value()) {
-            directory_iterator entries = op_entries.value();
-            this->walker(entries, roots, files);
+            optional<directory_iterator> op_entries = get_directory_entries(root);
+            if (op_entries.has_value()) {
+                directory_iterator entries = op_entries.value();
+                this->walker(entries, roots, files);
+            }
         }
     }
 
@@ -254,9 +247,9 @@ public:
 int main() {
     FileSearch file_search = FileSearch();
 
-    string root = "C:/Users/shady/Downloads";
+    string root = "./";
     vector<string> include_filenames = {};
-    vector<string> include_exts = {".mp3"};
+    vector<string> include_exts = {};
     vector<string> exclude_dirs = {};
 
     file_search.set_root(root);
