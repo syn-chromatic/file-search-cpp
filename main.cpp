@@ -40,8 +40,8 @@ public:
 class FileSearch {
 private:
     optional<path> root;
-    vector<string> include_filenames;
-    vector<string> include_exts;
+    vector<string> exclusive_filenames;
+    vector<string> exclusive_exts;
     vector<path> exclude_dirs;
 
     string format_extension(string &ext) {
@@ -55,9 +55,9 @@ private:
     }
 
     bool get_filter_validation(path &fpath) {
-        bool is_included_filename = this->is_included_filename(fpath);
-        bool is_included_extension = this->is_included_extension(fpath);
-        bool filter_validation = is_included_filename && is_included_extension;
+        bool is_exclusive_filename = this->is_exclusive_filename(fpath);
+        bool is_exclusive_extension = this->is_exclusive_extension(fpath);
+        bool filter_validation = is_exclusive_filename && is_exclusive_extension;
         return filter_validation;
     }
 
@@ -104,13 +104,13 @@ private:
         return false;
     }
 
-    bool is_included_filename(path &fpath) {
-        if (this->include_filenames.empty()) {
+    bool is_exclusive_filename(path &fpath) {
+        if (this->exclusive_filenames.empty()) {
             return true;
         }
 
         string file_stem = fpath.stem().string();
-        for (string file_name : this->include_filenames) {
+        for (string file_name : this->exclusive_filenames) {
             if (file_name == file_stem) {
                 return true;
             }
@@ -118,12 +118,12 @@ private:
         return false;
     }
 
-    bool is_included_extension(path &fpath) {
-        if (this->include_exts.empty()) {
+    bool is_exclusive_extension(path &fpath) {
+        if (this->exclusive_exts.empty()) {
             return true;
         }
 
-        for (string ext : this->include_exts) {
+        for (string ext : this->exclusive_exts) {
             ext = this->format_extension(ext);
             string file_ext = fpath.extension().string();
             file_ext = this->format_extension(file_ext);
@@ -206,24 +206,24 @@ public:
         this->root = path(root);
     }
 
-    void set_include_filenames(vector<string> &filenames) {
-        vector<string> include_filenames;
-        include_filenames.reserve(filenames.size());
+    void set_exclusive_filenames(vector<string> &filenames) {
+        vector<string> exclusive_filenames;
+        exclusive_filenames.reserve(filenames.size());
 
         for (string filename : filenames) {
-            include_filenames.push_back(filename);
+            exclusive_filenames.push_back(filename);
         }
-        this->include_filenames = include_filenames;
+        this->exclusive_filenames = exclusive_filenames;
     }
 
-    void set_include_extensions(vector<string> &exts) {
-        vector<string> include_exts;
-        include_exts.reserve(exts.size());
+    void set_exclusive_extensions(vector<string> &exts) {
+        vector<string> exclusive_exts;
+        exclusive_exts.reserve(exts.size());
 
         for (string ext : exts) {
-            include_exts.push_back(ext);
+            exclusive_exts.push_back(ext);
         }
-        this->include_exts = include_exts;
+        this->exclusive_exts = exclusive_exts;
     }
 
     void set_exclude_directories(vector<string> &dirs) {
@@ -248,13 +248,13 @@ int main() {
     FileSearch file_search = FileSearch();
 
     string root = "./";
-    vector<string> include_filenames = {};
-    vector<string> include_exts = {};
+    vector<string> exclusive_filenames = {};
+    vector<string> exclusive_exts = {};
     vector<string> exclude_dirs = {};
 
     file_search.set_root(root);
-    file_search.set_include_filenames(include_filenames);
-    file_search.set_include_extensions(include_exts);
+    file_search.set_exclusive_filenames(exclusive_filenames);
+    file_search.set_exclusive_extensions(exclusive_exts);
     file_search.set_exclude_directories(exclude_dirs);
 
     vector<path> files = file_search.search_files();
