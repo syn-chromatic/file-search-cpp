@@ -171,16 +171,15 @@ private:
     void walker(directory_iterator &entries, vector<path> &roots, vector<path> &files) {
         for (path entry : entries) {
             optional<path> op_fpath = this->get_canonical_path(entry);
-            if (!op_fpath.has_value()) {
-                continue;
-            }
-            path fpath = op_fpath.value();
+            if (op_fpath.has_value()) {
+                path fpath = op_fpath.value();
 
-            if (filesystem::is_regular_file(fpath)) {
-                this->handle_file(fpath, files);
+                if (filesystem::is_regular_file(fpath)) {
+                    this->handle_file(fpath, files);
 
-            } else if (filesystem::is_directory(fpath)) {
-                this->handle_folder(fpath, roots, files);
+                } else if (filesystem::is_directory(fpath)) {
+                    this->handle_folder(fpath, roots, files);
+                }
             }
         }
     }
