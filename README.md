@@ -26,7 +26,6 @@ file_search.set_exclusive_filenames(exclusive_filenames);
 vector<string> exclusive_exts = {".md"};
 file_search.set_exclusive_extensions(exclusive_exts);
 
-
 // Specify directories to exclude from the search
 // This excludes the path and not the directory name
 vector<string> exclude_dirs = {"./excluded_dir"};
