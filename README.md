@@ -23,7 +23,7 @@ vector<string> exclusive_filenames = {"README"};
 file_search.set_exclusive_filenames(exclusive_filenames);
 
 // Specify extensions to exclusively search for
-vector<string> exclusive_exts = {".md"};
+vector<string> exclusive_exts = {"md"};
 file_search.set_exclusive_extensions(exclusive_exts);
 
 // Specify directories to exclude from the search
