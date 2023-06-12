@@ -124,10 +124,7 @@ private:
         }
 
         for (string ext : this->exclusive_exts) {
-            ext = this->format_extension(ext);
             string file_ext = fpath.extension().string();
-            file_ext = this->format_extension(file_ext);
-
             if (file_ext == ext) {
                 return true;
             }
@@ -206,13 +203,7 @@ public:
     }
 
     void set_exclusive_filenames(vector<string> &filenames) {
-        vector<string> exclusive_filenames;
-        exclusive_filenames.reserve(filenames.size());
-
-        for (string filename : filenames) {
-            exclusive_filenames.push_back(filename);
-        }
-        this->exclusive_filenames = exclusive_filenames;
+        this->exclusive_filenames = filenames;
     }
 
     void set_exclusive_extensions(vector<string> &exts) {
@@ -220,6 +211,7 @@ public:
         exclusive_exts.reserve(exts.size());
 
         for (string ext : exts) {
+            ext = this->format_extension(ext);
             exclusive_exts.push_back(ext);
         }
         this->exclusive_exts = exclusive_exts;
@@ -256,6 +248,7 @@ int main() {
     file_search.set_exclusive_extensions(exclusive_exts);
     file_search.set_exclude_directories(exclude_dirs);
 
+    cout << "Searching.." << endl;
     vector<path> files = file_search.search_files();
 
     for (path file : files) {
